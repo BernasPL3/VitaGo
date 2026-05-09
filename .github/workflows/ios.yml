@@ -1,0 +1,32 @@
+name: Build iOS App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Build App
+        run: |
+          xcodebuild \
+          -project VitaGo.xcodeproj \
+          -scheme VitaGo \
+          -sdk iphonesimulator \
+          -configuration Release \
+          build
+
+      - name: Upload Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaGo-Build
+          path: build
