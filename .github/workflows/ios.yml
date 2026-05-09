@@ -1,4 +1,4 @@
-name: Build iOS App
+name: iOS Build
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-ios:
+  build:
     runs-on: macos-latest
 
     steps:
@@ -16,17 +16,19 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Build App
+      - name: Show Files
+        run: ls -R
+
+      - name: Build
         run: |
           xcodebuild \
-          -project VitaGo.xcodeproj \
           -scheme VitaGo \
           -sdk iphonesimulator \
           -configuration Release \
-          build
+          CODE_SIGNING_ALLOWED=NO
 
-      - name: Upload Build
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: VitaGo-Build
-          path: build
+          name: VitaGo
+          path: .
