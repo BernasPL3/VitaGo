@@ -1,4 +1,4 @@
-name: Build VitaGo
+name: Build IPA
 
 on:
   push:
@@ -13,16 +13,53 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build Swift Package
-        run: swift build
-
-      - name: Create Artifact Folder
+      - name: Create Swift App
         run: |
-          mkdir artifact
-          cp -R .build artifact/build
+          mkdir VitaGo
+          cd VitaGo
 
-      - name: Upload Artifact
+          cat > main.swift << 'EOF'
+          import UIKit
+
+          class AppDelegate: UIResponder, UIApplicationDelegate {
+          }
+
+          UIApplicationMain(
+              CommandLine.argc,
+              CommandLine.unsafeArgv,
+              nil,
+              NSStringFromClass(AppDelegate.self)
+          )
+          EOF
+
+          cat > Info.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleIdentifier</key>
+              <string>com.vitago.app</string>
+              <key>CFBundleName</key>
+              <string>VitaGo</string>
+              <key>CFBundleExecutable</key>
+              <string>VitaGo</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Compile App
+        run: |
+          mkdir Payload
+          mkdir Payload/VitaGo.app
+
+          cp VitaGo/Info.plist Payload/VitaGo.app/
+
+      - name: Create IPA
+        run: zip -r VitaGo.ipa Payload
+
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: VitaGo-Build
-          path: artifact
+          name: VitaGo-IPA
+          path: VitaGo.ipa
